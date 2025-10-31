@@ -1,4 +1,4 @@
-package webcrawler;
+package org.example.tarea4;
 
 import java.io.File;
 import java.io.FileWriter;
