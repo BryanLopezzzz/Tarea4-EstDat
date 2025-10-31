@@ -4,19 +4,19 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        try {
-            List<String> urls = Arrays.asList(
-                    "https://www.revistas.una.ac.cr/index.php/uniciencia",
-                    "https://www.una.ac.cr/",
-                    "https://www.revistas.una.ac.cr/"
-            );
+        AnalisisPR config = new AnalisisPR.Builder()
+                .conUrlsIniciales(Arrays.asList(
+                        "https://www.revistas.una.ac.cr/index.php/uniciencia",
+                        "https://www.una.ac.cr/",
+                        "https://www.revistas.una.ac.cr/"
+                ))
+                .conPatronFiltro("una")
+                .conFactorAmortiguacion(0.85)
+                .conUmbralConvergencia(0.0001)
+                .conIteracionesMaximas(100)
+                .construir();
 
-            webcrawler.WebCrawler crawler = new webcrawler.WebCrawler();
-            crawler.startCrawl("C:\\Users\\StevenBrenesChavarrí\\Desktop\\PROYECTO\\Documentos", urls, "una");
-
-            System.out.println("Crawling finalizado.");
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
+        Sistema coordinador = new Sistema(config);
+        coordinador.ejecutarAnalisisCompleto();
     }
 }
