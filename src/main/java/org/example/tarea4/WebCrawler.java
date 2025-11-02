@@ -42,6 +42,7 @@ public class WebCrawler {
         }
 
         long tiempoInicio = System.currentTimeMillis();
+        int errorCount = 0;
 
         while (!colaExploracion.isEmpty() && sitiosVisitados.size() < limitePaginas) {
             NodoExploracion nodoActual = colaExploracion.poll();
@@ -62,17 +63,19 @@ public class WebCrawler {
 
                 Document documento = Jsoup.connect(nodoActual.url)
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-                        .timeout(1500)
+                        .timeout(3000)
                         .followRedirects(true)
                         .ignoreHttpErrors(true)
                         .ignoreContentType(true)
-                        .maxBodySize(1024 * 1024 * 5)
+                        .maxBodySize(1024 * 1024 * 2)
                         .get();
 
                 Elements hiperenlaces = documento.select("a[href]");
+                int enlacesAgregados = 0;
+                int maxEnlacesPorPagina = 100;
 
                 for (Element hiperenlace : hiperenlaces) {
-                    if (sitiosVisitados.size() >= limitePaginas) {
+                    if (sitiosVisitados.size() >= limitePaginas || enlacesAgregados >= maxEnlacesPorPagina) {
                         break;
                     }
 
@@ -101,12 +104,22 @@ public class WebCrawler {
                     if (nodoActual.profundidad < 3 && sitiosVisitados.size() < limitePaginas) {
                         colaExploracion.offer(new NodoExploracion(urlDestino, nodoActual.profundidad + 1));
                         urlsEnCola.add(urlDestino);
+                        enlacesAgregados++;
                     }
                 }
 
-                Thread.sleep(15);
+                Thread.sleep(20);
+                errorCount = 0;
 
             } catch (Exception excepcion) {
+                errorCount++;
+                if (errorCount > 50) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                    }
+                    errorCount = 0;
+                }
             }
         }
 
@@ -114,7 +127,7 @@ public class WebCrawler {
 
         long tiempoTotal = (System.currentTimeMillis() - tiempoInicio) / 1000;
         System.out.println("\nExploración completada. Total de sitios: " + sitiosVisitados.size());
-        System.out.println("Tiempo total: " + tiempoTotal + " segundos");
+        System.out.println("Tiempo total: " + tiempoTotal + " segundos (" + (tiempoTotal / 60.0) + " minutos)");
     }
 
     private int registrarUrl(String url) {
