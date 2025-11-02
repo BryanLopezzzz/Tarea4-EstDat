@@ -17,20 +17,31 @@ public class WebCrawler {
     private int contadorIndices = 0;
     private String directorioDestino;
 
-    //Inicia la exploracion desde los URLss
+    public WebCrawler(int limitePaginas) {
+        this.limitePaginas = limitePaginas;
+    }
+
+    public WebCrawler() {
+        this(1000);
+    }
+
     public void iniciarExploracion(String rutaDestino, List<String> urlsSemilla, String filtro) {
         directorioDestino = rutaDestino;
         File directorio = new File(directorioDestino);
         if (!directorio.exists()) {
             directorio.mkdirs();
         }
-        //esto es la matriz de adyacencia
-        matrizConexiones = new int[limitePaginas][limitePaginas];
 
+        matrizConexiones = new int[limitePaginas][limitePaginas];
         Queue<NodoExploracion> colaExploracion = new LinkedList<>();
+        Set<String> urlsEnCola = new HashSet<>();
+
         for (String url : urlsSemilla) {
             colaExploracion.offer(new NodoExploracion(url, 0));
+            urlsEnCola.add(url);
         }
+
+        long tiempoInicio = System.currentTimeMillis();
 
         while (!colaExploracion.isEmpty() && sitiosVisitados.size() < limitePaginas) {
             NodoExploracion nodoActual = colaExploracion.poll();
@@ -39,53 +50,73 @@ public class WebCrawler {
                 continue;
             }
 
-            if (filtro == null || filtro.isEmpty() || nodoActual.url.contains(filtro)) {
-                try {
-                    System.out.println("[" + sitiosVisitados.size() + "/" + limitePaginas + "] Explorando: " + nodoActual.url);
+            if (filtro != null && !filtro.isEmpty() && !nodoActual.url.contains(filtro)) {
+                continue;
+            }
 
-                    int indiceOrigen = registrarUrl(nodoActual.url);
-                    sitiosVisitados.add(nodoActual.url);
+            try {
+                System.out.println("[" + sitiosVisitados.size() + "/" + limitePaginas + "] Explorando: " + nodoActual.url);
 
-                    Document documento = Jsoup.connect(nodoActual.url)
-                            .userAgent("Mozilla/5.0 (compatible; AnalizadorWeb/1.0)")
-                            .timeout(5000)
-                            .followRedirects(true)
-                            .get();
+                int indiceOrigen = registrarUrl(nodoActual.url);
+                sitiosVisitados.add(nodoActual.url);
 
-                    Elements hiperenlaces = documento.select("a[href]");
-                    for (Element hiperenlace : hiperenlaces) {
-                        String urlDestino = hiperenlace.attr("abs:href");
+                Document documento = Jsoup.connect(nodoActual.url)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                        .timeout(1500)
+                        .followRedirects(true)
+                        .ignoreHttpErrors(true)
+                        .ignoreContentType(true)
+                        .maxBodySize(1024 * 1024 * 5)
+                        .get();
 
-                        if (urlDestino != null && !urlDestino.isEmpty() && urlDestino.startsWith("http")) {
-                            urlDestino = limpiarUrl(urlDestino);
+                Elements hiperenlaces = documento.select("a[href]");
 
-                            int indiceDestino = registrarUrl(urlDestino);
-                            if (indiceOrigen < limitePaginas && indiceDestino < limitePaginas) {
-                                matrizConexiones[indiceOrigen][indiceDestino] = 1;
-                            }
-
-                            if (!sitiosVisitados.contains(urlDestino) &&
-                                    (filtro == null || filtro.isEmpty() || urlDestino.contains(filtro)) &&
-                                    nodoActual.profundidad < 3) {
-                                colaExploracion.offer(new NodoExploracion(urlDestino, nodoActual.profundidad + 1));
-                            }
-                        }
+                for (Element hiperenlace : hiperenlaces) {
+                    if (sitiosVisitados.size() >= limitePaginas) {
+                        break;
                     }
 
-                    Thread.sleep(100);
+                    String urlDestino = hiperenlace.attr("abs:href");
 
-                } catch (Exception excepcion) {
-                    System.out.println("⚠ Advertencia en " + nodoActual.url + ": " + excepcion.getMessage());
+                    if (urlDestino == null || urlDestino.isEmpty() || !urlDestino.startsWith("http")) {
+                        continue;
+                    }
+
+                    urlDestino = limpiarUrl(urlDestino);
+
+                    if (filtro != null && !filtro.isEmpty() && !urlDestino.contains(filtro)) {
+                        continue;
+                    }
+
+                    if (sitiosVisitados.contains(urlDestino) || urlsEnCola.contains(urlDestino)) {
+                        continue;
+                    }
+
+                    int indiceDestino = registrarUrl(urlDestino);
+
+                    if (indiceOrigen < limitePaginas && indiceDestino < limitePaginas) {
+                        matrizConexiones[indiceOrigen][indiceDestino] = 1;
+                    }
+
+                    if (nodoActual.profundidad < 3 && sitiosVisitados.size() < limitePaginas) {
+                        colaExploracion.offer(new NodoExploracion(urlDestino, nodoActual.profundidad + 1));
+                        urlsEnCola.add(urlDestino);
+                    }
                 }
+
+                Thread.sleep(15);
+
+            } catch (Exception excepcion) {
             }
         }
 
         ajustarDimensionMatriz();
 
-        System.out.println("\n✓ Exploración completada. Total de sitios: " + sitiosVisitados.size());
+        long tiempoTotal = (System.currentTimeMillis() - tiempoInicio) / 1000;
+        System.out.println("\nExploración completada. Total de sitios: " + sitiosVisitados.size());
+        System.out.println("Tiempo total: " + tiempoTotal + " segundos");
     }
 
-//registra un url en la index
     private int registrarUrl(String url) {
         if (!diccionarioUrls.containsKey(url)) {
             if (contadorIndices >= limitePaginas) {
@@ -100,10 +131,22 @@ public class WebCrawler {
 
     private String limpiarUrl(String url) {
         try {
-            url = url.split("#")[0];
-            if (url.endsWith("/")) {
+            int hashPos = url.indexOf('#');
+            if (hashPos != -1) {
+                url = url.substring(0, hashPos);
+            }
+
+            int queryPos = url.indexOf('?');
+            if (queryPos != -1) {
+                url = url.substring(0, queryPos);
+            }
+
+            if (url.endsWith("/") && url.length() > 1) {
                 url = url.substring(0, url.length() - 1);
             }
+
+            url = url.toLowerCase();
+
             return url;
         } catch (Exception e) {
             return url;
@@ -136,7 +179,6 @@ public class WebCrawler {
         return limitePaginas;
     }
 
-   //clase interna que puede ser externa si queremos
     private static class NodoExploracion {
         String url;
         int profundidad;

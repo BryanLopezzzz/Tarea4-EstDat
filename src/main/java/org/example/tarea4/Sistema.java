@@ -52,7 +52,7 @@ public class Sistema {
         mapeoUrls = analizador.obtenerMapeoIndices();
 
         System.out.println("\n Grafo web construido exitosamente");
-        System.out.println("  • Dimensión: " + grafoWeb.length + "×" + grafoWeb.length);
+        System.out.println("  * Dimensión: " + grafoWeb.length + "×" + grafoWeb.length);
         System.out.println();
     }
 
@@ -134,7 +134,6 @@ public class Sistema {
         System.out.println("\n╔" + "═".repeat(78) + "╗");
         System.out.println("║" + centrarTexto("SISTEMA DE ANÁLISIS PAGERANK", 78) + "║");
         System.out.println("║" + centrarTexto("Análisis de Grafos Web con Matriz de Adyacencia", 78) + "║");
-        System.out.println("║" + centrarTexto("Steven Brenes Chavarría - 2025", 78) + "║");
         System.out.println("╚" + "═".repeat(78) + "╝");
         System.out.println();
     }
