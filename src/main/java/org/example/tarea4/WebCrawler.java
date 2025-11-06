@@ -51,8 +51,12 @@ public class WebCrawler {
                 continue;
             }
 
-            if (filtro != null && !filtro.isEmpty() && !nodoActual.url.contains(filtro)) {
-                continue;
+            if (filtro != null && !filtro.isEmpty()) {
+                boolean esValido = nodoActual.url.contains(".una.ac.cr") ||
+                        nodoActual.url.contains("://una.ac.cr");
+                if (!esValido) {
+                    continue;
+                }
             }
 
             try {
@@ -63,7 +67,7 @@ public class WebCrawler {
 
                 Document documento = Jsoup.connect(nodoActual.url)
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-                        .timeout(3000)
+                        .timeout(5000)
                         .followRedirects(true)
                         .ignoreHttpErrors(true)
                         .ignoreContentType(true)
@@ -71,11 +75,12 @@ public class WebCrawler {
                         .get();
 
                 Elements hiperenlaces = documento.select("a[href]");
+
                 int enlacesAgregados = 0;
-                int maxEnlacesPorPagina = 100;
+                int maxEnlacesPorPagina = 200;
 
                 for (Element hiperenlace : hiperenlaces) {
-                    if (sitiosVisitados.size() >= limitePaginas || enlacesAgregados >= maxEnlacesPorPagina) {
+                    if (enlacesAgregados >= maxEnlacesPorPagina) {
                         break;
                     }
 
@@ -91,23 +96,20 @@ public class WebCrawler {
                         continue;
                     }
 
-                    if (sitiosVisitados.contains(urlDestino) || urlsEnCola.contains(urlDestino)) {
-                        continue;
-                    }
-
                     int indiceDestino = registrarUrl(urlDestino);
 
                     if (indiceOrigen < limitePaginas && indiceDestino < limitePaginas) {
                         matrizConexiones[indiceOrigen][indiceDestino] = 1;
-                    }
-
-                    if (nodoActual.profundidad < 3 && sitiosVisitados.size() < limitePaginas) {
-                        colaExploracion.offer(new NodoExploracion(urlDestino, nodoActual.profundidad + 1));
-                        urlsEnCola.add(urlDestino);
                         enlacesAgregados++;
                     }
-                }
 
+                    if (!sitiosVisitados.contains(urlDestino) && !urlsEnCola.contains(urlDestino)) {
+                        if (nodoActual.profundidad < 3 && sitiosVisitados.size() < limitePaginas) {
+                            colaExploracion.offer(new NodoExploracion(urlDestino, nodoActual.profundidad + 1));
+                            urlsEnCola.add(urlDestino);
+                        }
+                    }
+                }
                 Thread.sleep(20);
                 errorCount = 0;
 

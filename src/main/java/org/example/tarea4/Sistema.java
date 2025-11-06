@@ -39,7 +39,7 @@ public class Sistema {
         System.out.println("Parámetros de rastreo:");
         System.out.println("  1- Patrón de filtrado: '" + configuracion.getPatronFiltro() + "'");
         System.out.println("  2- Límite de páginas: " + analizador.obtenerLimitePaginas());
-        System.out.println("  3- Profundidad máxima: 3 niveles");
+        System.out.println("  3-    Profundidad máxima: 3 niveles");
         System.out.println();
 
         analizador.iniciarExploracion(
