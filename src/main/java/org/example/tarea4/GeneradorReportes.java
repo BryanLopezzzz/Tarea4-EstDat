@@ -38,7 +38,7 @@ public class GeneradorReportes {
 
     private static void escribirEncabezadoGrafo(FileWriter w, int dimension) throws IOException {
         w.write("╔" + "═".repeat(80) + "╗\n");
-        w.write("║" + centrar("REPORTE DE ESTRUCTURA DEL GRAFO WEB", 80) + "║\n");
+        w.write("║" + centrar(" ESTRUCTURA DEL GRAFO ", 80) + "║\n");
         w.write("║" + centrar("Matriz de Adyacencia", 80) + "║\n");
         w.write("╚" + "═".repeat(80) + "╝\n\n");
         w.write("Dimensión del grafo: " + dimension + " nodos\n");

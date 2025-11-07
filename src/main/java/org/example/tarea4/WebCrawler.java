@@ -227,12 +227,15 @@ public class WebCrawler {
 
     private int registrarUrl(String url) {
         return diccionarioUrls.computeIfAbsent(url, k -> {
-            int indice = contadorIndices.getAndIncrement();
-            if (indice >= limitePaginas) {
+            if (contadorIndices.get() >= limitePaginas) {
                 return -1;
             }
-            listaUrls.add(url);
-            return indice;
+            int indice = contadorIndices.getAndIncrement();
+            if (indice < limitePaginas) {
+                listaUrls.add(url);
+                return indice;
+            }
+            return -1;
         });
     }
 

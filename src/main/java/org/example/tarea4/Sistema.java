@@ -29,7 +29,7 @@ public class Sistema {
     }
 
     private void ejecutarFaseRastreo() {
-        imprimirEncabezadoFase("FASE 1: CONSTRUCCIÓN DEL GRAFO WEB");
+        imprimirEncabezadoFase("CONSTRUCCIÓN DEL GRAFO");
 
         System.out.println("Sitios iniciales a analizar:");
         configuracion.getUrlsIniciales().forEach(url ->
@@ -57,13 +57,13 @@ public class Sistema {
     }
 
     private void ejecutarFaseCalculoRanking() {
-        imprimirEncabezadoFase("FASE 2: ALGORITMO DE RANKING");
-
-        System.out.println("Parámetros del algoritmo:");
-        System.out.println("  1- Factor de amortiguación: " + configuracion.getFactorAmortiguacion());
-        System.out.println("  2- Umbral de convergencia: " + configuracion.getUmbralConvergencia());
-        System.out.println("  3- Iteraciones máximas: " + configuracion.getIteracionesMaximas());
-        System.out.println();
+//        imprimirEncabezadoFase("FASE 2: ALGORITMO DE RANKING");
+//
+//        System.out.println("Parámetros del algoritmo:");
+//        System.out.println("  1- Factor de amortiguación: " + configuracion.getFactorAmortiguacion());
+//        System.out.println("  2- Umbral de convergencia: " + configuracion.getUmbralConvergencia());
+//        System.out.println("  3- Iteraciones máximas: " + configuracion.getIteracionesMaximas());
+//        System.out.println();
 
         PageRanking motor = new PageRanking(
                 configuracion.getFactorAmortiguacion(),
@@ -74,12 +74,12 @@ public class Sistema {
         rankingPaginas = motor.computarRanking(grafoWeb, grafoWeb.length);
 
         System.out.println("\n Ranking calculado exitosamente");
-        mostrarTopPaginas(5);
+        //mostrarTopPaginas(5);
         System.out.println();
     }
 
     private void ejecutarFaseExportacion() {
-        imprimirEncabezadoFase("FASE 3: GENERACIÓN DE REPORTES");
+        //imprimirEncabezadoFase(" GENERACIÓN DE REPORTES");
 
         try {
             String rutaMatriz = configuracion.getRutaSalida() + "/matriz_adyacencia.txt";
