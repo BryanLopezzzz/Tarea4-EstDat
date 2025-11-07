@@ -33,7 +33,7 @@ public class Sistema {
 
         System.out.println("Sitios iniciales a analizar:");
         configuracion.getUrlsIniciales().forEach(url ->
-                System.out.println("  → " + url));
+                System.out.println("  -> " + url));
         System.out.println();
 
         System.out.println("Parámetros de rastreo:");

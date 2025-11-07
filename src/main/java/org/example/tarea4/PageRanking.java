@@ -51,7 +51,7 @@ public class PageRanking {
             System.arraycopy(vectorRankingNuevo, 0, vectorRanking, 0, totalNodos);
             ciclo++;
 
-            System.out.printf("  Ciclo %d → Error acumulado: %.8f\n", ciclo, errorAcumulado);
+            System.out.printf("  Ciclo %d -> Error acumulado: %.8f\n", ciclo, errorAcumulado);
 
         } while (errorAcumulado > toleranciaConvergencia && ciclo < limiteIteraciones);
 

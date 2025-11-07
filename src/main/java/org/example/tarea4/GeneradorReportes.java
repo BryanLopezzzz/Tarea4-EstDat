@@ -58,7 +58,7 @@ public class GeneradorReportes {
     private static void escribirMatrizAdyacencia(FileWriter w, int[][] matriz, int dim) throws IOException {
         w.write("MATRIZ DE ADYACENCIA\n");
         w.write("─".repeat(80) + "\n");
-        w.write("Formato: Fila → Columna (1 = existe enlace, 0 = no existe)\n\n");
+        w.write("Formato: Fila -> Columna (1 = existe enlace, 0 = no existe)\n\n");
 
         if (dim > 50) {
             w.write("Nota: Matriz grande. Se muestra en formato comprimido.\n\n");
@@ -72,7 +72,7 @@ public class GeneradorReportes {
                 }
 
                 if (!conexiones.isEmpty()) {
-                    w.write(String.format("[%4d] → ", i));
+                    w.write(String.format("[%4d] -> ", i));
                     if (conexiones.size() <= 20) {
                         w.write(conexiones.toString() + "\n");
                     } else {
