@@ -260,9 +260,7 @@ public class WebCrawler {
                     url = url + "/";
                 }
             }
-
             return url;
-
         } catch (Exception e) {
             return url;
         }

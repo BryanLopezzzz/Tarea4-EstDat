@@ -14,7 +14,6 @@ public class GeneradorReportes {
 
         try (FileWriter escritor = new FileWriter(rutaArchivo)) {
             escribirEncabezadoGrafo(escritor, dimension);
-//            escribirCatalogoUrls(escritor, catalogoUrls, dimension);
             escribirMatrizAdyacencia(escritor, matrizGrafo, dimension);
             escribirEstadisticasGrafo(escritor, matrizGrafo, dimension);
         }
@@ -30,7 +29,6 @@ public class GeneradorReportes {
             escribirEncabezadoRanking(escritor, datosRanking.size());
             escribirTablaRanking(escritor, datosRanking, catalogoUrls);
             escribirEstadisticasRanking(escritor, datosRanking, catalogoUrls);
-            //escribirTopPaginas(escritor, datosRanking, catalogoUrls, 10);
         }
 
         System.out.println("  * Resultados PageRank");
@@ -42,18 +40,9 @@ public class GeneradorReportes {
         w.write("║" + centrar("Matriz de Adyacencia", 80) + "║\n");
         w.write("╚" + "═".repeat(80) + "╝\n\n");
         w.write("Dimensión del grafo: " + dimension + " nodos\n");
-        //w.write("Fecha de generación: " + new Date() + "\n");
         w.write("═".repeat(80) + "\n\n");
     }
 
-//    private static void escribirCatalogoUrls(FileWriter w, List<String> urls, int total) throws IOException {
-//        w.write("CATÁLOGO DE URLS INDEXADAS\n");
-//        w.write("─".repeat(80) + "\n\n");
-//        for (int i = 0; i < total; i++) {
-//            w.write(String.format("[%4d] %s\n", i, urls.get(i)));
-//        }
-//        w.write("\n");
-//    }
 //esta función logra en hacer bonita la matriz, en pocas palabras
     private static void escribirMatrizAdyacencia(FileWriter w, int[][] matriz, int dim) throws IOException {
         w.write("MATRIZ DE ADYACENCIA\n");
@@ -156,7 +145,6 @@ public class GeneradorReportes {
         w.write("╚" + "═".repeat(100) + "╝\n\n");
         w.write("Factor de amortiguación: 0.85\n");
         w.write("Páginas analizadas: " + total + "\n");
-//        w.write("Fecha: " + new Date() + "\n");
         w.write("═".repeat(100) + "\n\n");
     }
 
@@ -202,24 +190,6 @@ public class GeneradorReportes {
         w.write("\n");
     }
 
-//    private static void escribirTopPaginas(FileWriter w, Map<Integer, Double> ranking,
-//                                           List<String> urls, int cantidad) throws IOException {
-//        w.write("═".repeat(100) + "\n");
-//        w.write("TOP " + cantidad + " PÁGINAS MÁS IMPORTANTES\n");
-//        w.write("─".repeat(100) + "\n\n");
-//
-//        List<Map.Entry<Integer, Double>> ordenado = new ArrayList<>(ranking.entrySet());
-//        ordenado.sort((a, b) -> b.getValue().compareTo(a.getValue()));
-//
-//        for (int i = 0; i < Math.min(cantidad, ordenado.size()); i++) {
-//            Map.Entry<Integer, Double> entrada = ordenado.get(i);
-//            w.write(String.format("%2d. [%.12f] %s\n",
-//                    i + 1,
-//                    entrada.getValue(),
-//                    urls.get(entrada.getKey())));
-//        }
-//        w.write("\n");
-//    }
 
     private static String centrar(String texto, int ancho) {
         int padding = (ancho - texto.length()) / 2;

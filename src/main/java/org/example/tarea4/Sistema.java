@@ -57,14 +57,6 @@ public class Sistema {
     }
 
     private void ejecutarFaseCalculoRanking() {
-//        imprimirEncabezadoFase("ALGORITMO DE RANKING");
-//
-//        System.out.println("Parámetros del algoritmo:");
-//        System.out.println("  1- Factor de amortiguación: " + configuracion.getFactorAmortiguacion());
-//        System.out.println("  2- Umbral de convergencia: " + configuracion.getUmbralConvergencia());
-//        System.out.println("  3- Iteraciones máximas: " + configuracion.getIteracionesMaximas());
-//        System.out.println();
-
         PageRanking motor = new PageRanking(
                 configuracion.getFactorAmortiguacion(),
                 configuracion.getUmbralConvergencia(),
@@ -74,7 +66,6 @@ public class Sistema {
         rankingPaginas = motor.computarRanking(grafoWeb, grafoWeb.length);
 
         System.out.println("\n Ranking calculado exitosamente");
-        //mostrarTopPaginas(5);
         System.out.println();
     }
 
