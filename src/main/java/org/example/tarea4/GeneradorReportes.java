@@ -19,7 +19,7 @@ public class GeneradorReportes {
             escribirEstadisticasGrafo(escritor, matrizGrafo, dimension);
         }
 
-        System.out.println(" Reporte de grafo: " + rutaArchivo);
+        System.out.println("  * Matriz de adyacencia");
     }
 
     public static void generarReporteRanking(String rutaArchivo,
@@ -33,7 +33,7 @@ public class GeneradorReportes {
             //escribirTopPaginas(escritor, datosRanking, catalogoUrls, 10);
         }
 
-        System.out.println(" Reporte de ranking: " + rutaArchivo);
+        System.out.println("  * Resultados PageRank");
     }
 
     private static void escribirEncabezadoGrafo(FileWriter w, int dimension) throws IOException {

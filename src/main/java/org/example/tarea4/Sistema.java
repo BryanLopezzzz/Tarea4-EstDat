@@ -39,7 +39,7 @@ public class Sistema {
         System.out.println("Parámetros de rastreo:");
         System.out.println("  1- Patrón de filtrado: '" + configuracion.getPatronFiltro() + "'");
         System.out.println("  2- Límite de páginas: " + analizador.obtenerLimitePaginas());
-        System.out.println("  3-    Profundidad máxima: 3 niveles");
+        System.out.println("  3- Profundidad máxima: 3 niveles");
         System.out.println();
 
         analizador.iniciarExploracion(
@@ -57,7 +57,7 @@ public class Sistema {
     }
 
     private void ejecutarFaseCalculoRanking() {
-//        imprimirEncabezadoFase("FASE 2: ALGORITMO DE RANKING");
+//        imprimirEncabezadoFase("ALGORITMO DE RANKING");
 //
 //        System.out.println("Parámetros del algoritmo:");
 //        System.out.println("  1- Factor de amortiguación: " + configuracion.getFactorAmortiguacion());
@@ -79,8 +79,6 @@ public class Sistema {
     }
 
     private void ejecutarFaseExportacion() {
-        //imprimirEncabezadoFase(" GENERACIÓN DE REPORTES");
-
         try {
             String rutaMatriz = configuracion.getRutaSalida() + "/matriz_adyacencia.txt";
             String rutaRanking = configuracion.getRutaSalida() + "/pagerank_resultados.txt";
@@ -88,9 +86,7 @@ public class Sistema {
             GeneradorReportes.generarReporteGrafo(rutaMatriz, grafoWeb, mapeoUrls);
             GeneradorReportes.generarReporteRanking(rutaRanking, rankingPaginas, mapeoUrls);
 
-            System.out.println(" Reportes generados exitosamente");
-            System.out.println("  1- " + rutaMatriz);
-            System.out.println("  2- " + rutaRanking);
+            System.out.println(" Archivos generados exitosamente");
             System.out.println();
 
         } catch (Exception e) {

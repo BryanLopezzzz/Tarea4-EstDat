@@ -20,8 +20,6 @@ public class WebCrawler {
     private final AtomicInteger contadorIndices = new AtomicInteger(0);
     private String directorioDestino;
     private ExecutorService executor;
-
-    // Semáforo para controlar acceso a la matriz
     private final Object matrizLock = new Object();
 
     public WebCrawler(int limitePaginas) {
@@ -29,7 +27,7 @@ public class WebCrawler {
     }
 
     public WebCrawler() {
-        this(1000);
+        this(50);
     }
 
     public void iniciarExploracion(String rutaDestino, List<String> urlsSemilla, String filtro) {
@@ -41,24 +39,18 @@ public class WebCrawler {
 
         matrizConexiones = new int[limitePaginas][limitePaginas];
 
-        // Crear pool de 5 threads
         executor = Executors.newFixedThreadPool(5);
 
-        // Cola thread-safe
         BlockingQueue<NodoExploracion> colaExploracion = new LinkedBlockingQueue<>();
-
-        // Agregar URLs semilla
         for (String url : urlsSemilla) {
             colaExploracion.offer(new NodoExploracion(url, 0));
             urlsEnCola.add(url);
         }
 
         long tiempoInicio = System.currentTimeMillis();
-
-        // Contador de threads activos
+        //contador de hilos, como en el proyecto de progra
         AtomicInteger threadsActivos = new AtomicInteger(0);
 
-        // Lanzar workers
         List<Future<?>> futures = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Future<?> future = executor.submit(() -> {
@@ -67,7 +59,6 @@ public class WebCrawler {
             futures.add(future);
         }
 
-        // Esperar a que terminen todos los threads
         for (Future<?> future : futures) {
             try {
                 future.get();
@@ -94,11 +85,9 @@ public class WebCrawler {
             NodoExploracion nodoActual = null;
 
             try {
-                // Intentar obtener elemento de la cola (timeout de 2 segundos)
                 nodoActual = colaExploracion.poll(2, TimeUnit.SECONDS);
 
                 if (nodoActual == null) {
-                    // Si no hay más elementos y ningún thread está procesando, terminar
                     if (threadsActivos.get() == 0 && colaExploracion.isEmpty()) {
                         break;
                     }
@@ -107,7 +96,6 @@ public class WebCrawler {
 
                 threadsActivos.incrementAndGet();
 
-                // Validaciones básicas
                 if (sitiosVisitados.contains(nodoActual.url) ||
                         !nodoActual.url.startsWith("http") ||
                         sitiosVisitados.size() >= limitePaginas) {
@@ -120,7 +108,6 @@ public class WebCrawler {
                     continue;
                 }
 
-                // Procesar URL
                 procesarUrl(nodoActual, colaExploracion, filtro);
 
                 errorCount = 0;
@@ -150,9 +137,8 @@ public class WebCrawler {
                              BlockingQueue<NodoExploracion> colaExploracion,
                              String filtro) {
         try {
-            // Marcar como visitado ANTES de procesar (evita duplicados)
             if (!sitiosVisitados.add(nodoActual.url)) {
-                return; // Ya fue visitado por otro thread
+                return;
             }
 
             System.out.println("[" + sitiosVisitados.size() + "/" + limitePaginas + "] Explorando: " + nodoActual.url);
@@ -184,6 +170,9 @@ public class WebCrawler {
 
                 String urlDestino = hiperenlace.attr("abs:href");
 
+                urlDestino = limpiarUrl(urlDestino);
+
+
                 if (urlDestino == null || urlDestino.isEmpty() || !urlDestino.startsWith("http")) {
                     continue;
                 }
@@ -200,7 +189,6 @@ public class WebCrawler {
                     }
                 }
 
-                // Registrar URL y conexión
                 int indiceDestino = registrarUrl(urlDestino);
 
                 if (indiceDestino >= 0 && indiceOrigen < limitePaginas && indiceDestino < limitePaginas) {
@@ -210,7 +198,6 @@ public class WebCrawler {
                     enlacesAgregados++;
                 }
 
-                // Solo agregar a la cola si no ha sido visitado
                 if (!sitiosVisitados.contains(urlDestino) && urlsEnCola.add(urlDestino)) {
                     if (nodoActual.profundidad < 4 && sitiosVisitados.size() < limitePaginas) {
                         colaExploracion.offer(new NodoExploracion(urlDestino, nodoActual.profundidad + 1));
@@ -221,12 +208,13 @@ public class WebCrawler {
             Thread.sleep(50);
 
         } catch (Exception excepcion) {
-            // Error silencioso, el thread continúa
+
         }
     }
 
     private int registrarUrl(String url) {
-        return diccionarioUrls.computeIfAbsent(url, k -> {
+        String urlLimpia = limpiarUrl(url);
+        return diccionarioUrls.computeIfAbsent(urlLimpia, k -> {
             if (contadorIndices.get() >= limitePaginas) {
                 return -1;
             }
@@ -241,6 +229,15 @@ public class WebCrawler {
 
     private String limpiarUrl(String url) {
         try {
+            if (url == null || url.isEmpty()) {
+                return url;
+            }
+            url = url.toLowerCase().trim();
+
+            if (url.startsWith("http://")) {
+                url = url.replace("http://", "https://");
+            }
+
             int hashPos = url.indexOf('#');
             if (hashPos != -1) {
                 url = url.substring(0, hashPos);
@@ -251,13 +248,21 @@ public class WebCrawler {
                 url = url.substring(0, queryPos);
             }
 
-            if (url.endsWith("/") && url.length() > 1) {
-                url = url.substring(0, url.length() - 1);
+            if (url.endsWith("/")) {
+                long slashCount = url.chars().filter(ch -> ch == '/').count();
+                if (slashCount > 3) {
+                    url = url.substring(0, url.length() - 1);
+                }
+            } else {
+
+                long slashCount = url.chars().filter(ch -> ch == '/').count();
+                if (slashCount == 2) {
+                    url = url + "/";
+                }
             }
 
-            url = url.toLowerCase();
-
             return url;
+
         } catch (Exception e) {
             return url;
         }

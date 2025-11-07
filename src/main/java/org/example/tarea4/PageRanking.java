@@ -24,10 +24,10 @@ public class PageRanking {
 
         // el iterativo puede ser de otra manera
         int ciclo = 0;
-        double errorAcumulado;
+        double diferenciaPromedio;
 
         do {
-            errorAcumulado = 0.0;
+            diferenciaPromedio = 0.0;
 
             for (int nodoDestino = 0; nodoDestino < totalNodos; nodoDestino++) {
                 double sumaContribuciones = 0.0;
@@ -40,20 +40,23 @@ public class PageRanking {
                     }
                 }
 
-                // se aplica la formula: PR(A) = (1-d)/N + d * suma
                 double rankingActualizado = ((1.0 - coeficienteAmortiguacion) / totalNodos) +
                         (coeficienteAmortiguacion * sumaContribuciones);
                 vectorRankingNuevo[nodoDestino] = rankingActualizado;
 
-                errorAcumulado += Math.abs(rankingActualizado - vectorRanking[nodoDestino]);
+                diferenciaPromedio += Math.abs(rankingActualizado - vectorRanking[nodoDestino]);
             }
+
+            // el enunciado pide la diferencia promedio
+            double errorPromedio = diferenciaPromedio / totalNodos;
 
             System.arraycopy(vectorRankingNuevo, 0, vectorRanking, 0, totalNodos);
             ciclo++;
 
-            System.out.printf("  Ciclo %d -> Error acumulado: %.8f\n", ciclo, errorAcumulado);
+            System.out.printf("  Ciclo %d -> Diferencia Promedio: %.8f (umbral: %.8f)\n",
+                    ciclo, errorPromedio, toleranciaConvergencia);
 
-        } while (errorAcumulado > toleranciaConvergencia && ciclo < limiteIteraciones);
+        } while (diferenciaPromedio / totalNodos > toleranciaConvergencia && ciclo < limiteIteraciones);
 
         System.out.println("\nConvergencia alcanzada después de " + ciclo + " iteraciones");
         Map<Integer, Double> rankingFinal = new HashMap<>();
