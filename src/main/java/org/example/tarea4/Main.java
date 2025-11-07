@@ -10,7 +10,7 @@ public class Main {
                         "https://www.revistas.una.ac.cr/",
                         "https://www.siduna.una.ac.cr/"
                 ))
-                .conPatronFiltro("")
+                .conPatronFiltro("una.ac.cr")
                 .conFactorAmortiguacion(0.85)
                 .conUmbralConvergencia(0.0001)
                 .conIteracionesMaximas(100)
